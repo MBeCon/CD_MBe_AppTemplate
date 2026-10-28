@@ -52,7 +52,7 @@ glab api -X POST "projects/${PROJECT}/environments" -f name=production --silent 
 
 echo
 echo "Fertig. Bitte noch manuell prüfen:"
-echo "  - .gitlab/CODEOWNERS: Platzhalter @OWNER-ERSETZEN ersetzen"
+echo "  - .gitlab/CODEOWNERS: \"*\" auf den App-Owner setzen"
 echo "  - Manage > Members: Autoren als Developer, Freigeber als Maintainer"
 echo "  - Settings > CI/CD > Variables: Secrets für das Deployment (protected + masked) hinterlegen"
 echo "  - Settings > CI/CD > Runners: Linux-Runner mit Docker (privileged) verfügbar?"

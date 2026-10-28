@@ -1,11 +1,11 @@
-# Verantwortliche für dieses Repository. Platzhalter durch GitLab-Gruppe oder Benutzer ersetzen,
+# Verantwortliche für dieses Repository (GitLab-Benutzer oder -Gruppe). Neue Apps: "*" auf den App-Owner ändern,
 # z. B. "* @datascience/core/applications". Änderungen an Pipeline und QS-Konfiguration besonders schützen.
-# Hinweis: GitLab CE zeigt die Code Owner im Merge Request an, erzwingt deren Freigabe aber nicht
-# (Premium-Funktion). Verbindlich ist bei uns: Merge nur durch Maintainer, nie durch den Autor.
-*                         @OWNER-ERSETZEN
-/.gitlab/                 @OWNER-ERSETZEN
-/.gitlab-ci.yml           @OWNER-ERSETZEN
-/renovate.json            @OWNER-ERSETZEN
-/.pre-commit-config.yaml  @OWNER-ERSETZEN
-/.claude/                 @OWNER-ERSETZEN
-/pyproject.toml           @OWNER-ERSETZEN
+# Hinweis: GitLab CE wertet CODEOWNERS nicht aus (Premium-Funktion); die Datei dokumentiert die
+# Verantwortlichen. Verbindlich ist bei uns: Merge nur durch Maintainer, nie durch den Autor.
+*                         @mbrunner
+/.gitlab/                 @mbrunner
+/.gitlab-ci.yml           @mbrunner
+/renovate.json            @mbrunner
+/.pre-commit-config.yaml  @mbrunner
+/.claude/                 @mbrunner
+/pyproject.toml           @mbrunner
