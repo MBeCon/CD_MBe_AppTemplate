@@ -33,16 +33,6 @@
       }
     ]
   },
-  "enabledPlugins": {
-    "te-cd-qs@CD_te_skills": true
-  },
-  "extraKnownMarketplaces": {
-    "CD_te_skills": {
-      "source": {
-        "source": "git",
-        "url": "https://gitlab.technosert.com/technosert/cd_te_skills.git"
-      },
-      "autoUpdate": true
-    }
-  }
+  "enabledPlugins": {},
+  "extraKnownMarketplaces": {}
 }
