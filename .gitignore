@@ -22,8 +22,10 @@ htmlcov/
 # Claude Code – persönliche Einstellungen nicht teilen
 .claude/settings.local.json
 
-# Editor / OS
-.vscode/
+# Editor / OS – gemeinsame VS-Code-Einstellungen werden geteilt, persönliche nicht
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 .idea/
 .DS_Store
 Thumbs.db

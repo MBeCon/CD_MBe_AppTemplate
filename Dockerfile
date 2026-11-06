@@ -13,7 +13,10 @@ WORKDIR /app
 RUN groupadd --system app && useradd --system --gid app --no-create-home app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Laufzeitpakete installieren, danach pip entfernen: wird im Betrieb nicht gebraucht und
+# verkleinert die Angriffsfläche (im Container lassen sich so keine Pakete nachinstallieren).
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip uninstall --yes pip
 
 COPY app/ app/
 COPY wsgi.py .

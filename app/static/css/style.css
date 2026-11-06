@@ -1,0 +1,914 @@
+/* =============================================================================
+   style.css – technosert-App-Design für CD_te_app_template
+   Übernommen aus teProductionPlanning (ekey.css, Skill te-appdesign).
+   Variablennamen --ekey-* bewusst beibehalten (austauschbar zwischen den te-Apps).
+   Nur ergänzen, nichts umdefinieren.
+   ============================================================================= */
+
+:root {
+    /* Farbpalette an technosert.com angepasst (Rückfrage vom 30.09.2026) -
+       Primärfarbe = Markenfarbe der technosert-Website (Logo, Buttons,
+       Links: rgb(232, 48, 138)), Rest der Palette als Tönungen/Abdunkelung
+       davon abgeleitet, gleiche Struktur wie zuvor (siehe te-appdesign). */
+    --ekey-primary:         #E8308A;
+    --ekey-primary-dark:    #B81463;
+    --ekey-text:            #333333;
+    --ekey-muted:           #666666;
+    --ekey-border:          #BBBBBB;
+    --ekey-btn-bg:          #F9ECF2;
+    --ekey-btn-bg-active:   #E8308A;
+    --ekey-btn-text:        #E8308A;
+    --ekey-btn-text-active: #FFFFFF;
+    --ekey-header-bg:       #262531;   /* Kopfzeile - dunkles Grau-Blau wie auf technosert.com (.mainheader) */
+    --ekey-footer-bg:       #F9ECF2;
+    --ekey-sidebar-bg:      #FBF4F7;
+    --ekey-table-header:    #F7E8EF;
+    --ekey-table-row-alt:   #FCF8FA;
+    --ekey-error:           #B00020;
+    --ekey-error-bg:        #FFE9EC;
+    --ekey-success:         #1A7A3A;
+    --ekey-success-bg:      #E8F5EC;
+    --ekey-warning:         #8B5800;
+    --ekey-warning-bg:      #FFF8E1;
+    --ekey-info:            #005B99;
+    --ekey-info-bg:         #E1F0FA;
+}
+
+/* Reset & Base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+    height: 100%;
+    background: #F0F0F0; /* Randfarbe auf Ultra-Wide (außerhalb 16:9) - hellgrau statt hellpink (Anforderung vom 30.09.2026) */
+}
+
+body {
+    height: 100%;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    color: var(--ekey-text);
+    background: #F0F0F0;
+}
+
+a { color: var(--ekey-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* =============================================================================
+   LAYOUT
+   ============================================================================= */
+
+.app-wrapper {
+    display: grid;
+    grid-template-rows: 60px 1fr 32px;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+        "header  header"
+        "sidebar main"
+        "footer  footer";
+    /* Fest auf Viewport-Höhe begrenzt (statt min-height): dadurch wachsen
+       Sidebar/Main NICHT über den Viewport hinaus und die Seite selbst
+       scrollt nie – stattdessen scrollt jeder Bereich (.app-sidebar,
+       .app-main) unabhängig über sein eigenes overflow-y:auto. So bleibt
+       die Menüspalte immer sichtbar/fix, während im Arbeitsbereich
+       gescrollt wird. */
+    height: 100vh;
+    overflow: hidden;
+    /* 16:9-Breite: auf Ultra-Wide-Monitoren (21:9 etc.) wird die Seite
+       auf die äquivalente 16:9-Breite begrenzt und zentriert */
+    max-width: calc(100vh * 16 / 9);
+    margin: 0 auto;
+    background: #FFFFFF;
+}
+
+/* =============================================================================
+   HEADER
+   ============================================================================= */
+
+.app-header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: var(--ekey-header-bg);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-logo img {
+    height: 42px;
+    width: auto;
+}
+
+.header-logo .logo-placeholder {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FFFFFF;
+    letter-spacing: 2px;
+}
+
+.header-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
+    text-align: center;
+    flex: 1;
+}
+
+.header-title span {
+    font-size: 10px;
+    color: rgba(255,255,255,0.75);
+    display: block;
+    font-weight: normal;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.server-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.85);
+    padding: 4px 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.12);
+}
+
+.server-indicator .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+}
+.server-indicator .dot.connected { background: #5FD080; }
+.server-indicator .dot.disconnected { background: #FF6B6B; }
+
+/* Beenden-Button im Header */
+.app-header .btn {
+    background: rgba(255,255,255,0.15);
+    color: #FFFFFF;
+    border-color: rgba(255,255,255,0.35);
+}
+.app-header .btn:hover {
+    background: rgba(255,255,255,0.30);
+    color: #FFFFFF;
+    border-color: rgba(255,255,255,0.6);
+}
+
+/* =============================================================================
+   SIDEBAR
+   ============================================================================= */
+
+.app-sidebar {
+    grid-area: sidebar;
+    width: 200px;
+    background: var(--ekey-sidebar-bg);
+    border-right: 1px solid var(--ekey-border);
+    overflow-y: auto;
+    transition: width 0.2s ease;
+    flex-shrink: 0;
+}
+
+.app-sidebar.collapsed {
+    width: 36px;
+    overflow: hidden;
+}
+
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--ekey-border);
+    cursor: pointer;
+    background: var(--ekey-table-header);
+}
+
+.sidebar-toggle:hover { background: var(--ekey-primary); color: white; }
+
+.sidebar-section {
+    padding: 8px 0;
+}
+
+.sidebar-section-title {
+    font-size: 9px;
+    font-weight: bold;
+    color: var(--ekey-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 4px 10px;
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 6px 10px 6px 16px;
+    font-size: 10px;
+    color: var(--ekey-text);
+    border-left: 3px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar-nav a:hover {
+    background: var(--ekey-table-header);
+    border-left-color: var(--ekey-primary);
+    color: var(--ekey-primary);
+    text-decoration: none;
+}
+
+.sidebar-nav a.active {
+    background: var(--ekey-table-header);
+    border-left-color: var(--ekey-primary);
+    color: var(--ekey-primary);
+    font-weight: bold;
+}
+
+.sidebar-nav-group > .sidebar-nav-group-title {
+    display: block;
+    padding: 6px 10px;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--ekey-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    background: var(--ekey-btn-bg);
+    border-left: 3px solid var(--ekey-primary);
+}
+
+/* =============================================================================
+   MAIN CONTENT
+   ============================================================================= */
+
+.app-main {
+    grid-area: main;
+    overflow-y: auto;
+    padding: 16px;
+    background: #FFFFFF;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ekey-border);
+}
+
+.page-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--ekey-primary);
+}
+
+.page-subtitle {
+    font-size: 10px;
+    color: var(--ekey-muted);
+    margin-top: 2px;
+}
+
+.content-section {
+    background: #FFFFFF;
+    border: 1px solid var(--ekey-border);
+    margin-bottom: 12px;
+}
+
+.content-section-header {
+    background: var(--ekey-table-header);
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--ekey-primary);
+    border-bottom: 1px solid var(--ekey-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.content-section-body {
+    padding: 12px;
+}
+
+/* =============================================================================
+   FOOTER
+   ============================================================================= */
+
+.app-footer {
+    grid-area: footer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ekey-footer-bg);
+    border-top: 1px solid var(--ekey-border);
+    font-size: 9px;
+    color: var(--ekey-muted);
+    height: 32px;
+}
+
+.app-footer a { color: var(--ekey-muted); }
+.app-footer a:hover { color: var(--ekey-primary); }
+
+/* =============================================================================
+   BUTTONS
+   ============================================================================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 28px;
+    min-width: 100px;
+    padding: 4px 12px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    border: 1px solid var(--ekey-border);
+    background: var(--ekey-btn-bg);
+    color: var(--ekey-btn-text);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+}
+
+.btn:hover {
+    background: var(--ekey-primary);
+    color: var(--ekey-btn-text-active);
+    border-color: var(--ekey-primary);
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--ekey-primary);
+    color: white;
+    border-color: var(--ekey-primary-dark);
+}
+.btn-primary:hover {
+    background: var(--ekey-primary-dark);
+    border-color: var(--ekey-primary-dark);
+}
+
+.btn-danger {
+    background: var(--ekey-error-bg);
+    color: var(--ekey-error);
+    border-color: var(--ekey-error);
+}
+.btn-danger:hover { background: var(--ekey-error); color: white; }
+
+.btn-sm {
+    min-height: 22px;
+    min-width: 60px;
+    padding: 2px 8px;
+    font-size: 9px;
+}
+
+.btn-icon {
+    min-width: 28px;
+    width: 28px;
+    padding: 4px 6px;
+}
+
+/* Sehr schmaler Button, nur für ein einzelnes Symbol (z.B. Reihenfolge-Pfeile
+   in Tabellen) - im Gegensatz zu .btn-sm ohne Mindestbreite, damit der Button
+   nicht breiter wird als für das Symbol selbst nötig. */
+.btn-arrow {
+    min-width: 0;
+    min-height: 18px;
+    width: 18px;
+    padding: 1px 0;
+}
+
+/* Löschen-Buttons (app-weit): zeigen nur das Mistkübel-Symbol, quadratisch -
+   die Höhe bleibt die der jeweils verwendeten Button-Größe (.btn: 28px,
+   .btn-sm: 22px, siehe oben), die Breite wird exakt an diese Höhe angeglichen
+   (statt der sonst über .btn/.btn-sm geerbten Mindestbreite/Text-Polsterung). */
+.btn-delete {
+    width: 28px;
+    height: 28px;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+}
+.btn-sm.btn-delete {
+    width: 22px;
+    height: 22px;
+}
+
+.btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* =============================================================================
+   FORMS
+   ============================================================================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.form-group label {
+    font-size: 9px;
+    font-weight: bold;
+    color: var(--ekey-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    padding: 4px 8px;
+    border: 1px solid var(--ekey-border);
+    background: #FFFFFF;
+    color: var(--ekey-text);
+    outline: none;
+    height: 28px;
+}
+
+.form-group textarea {
+    height: auto;
+    min-height: 60px;
+    resize: vertical;
+}
+
+/* Überschreibt die mehrzeilige .form-group-textarea-Grösse oben für
+   Information-Freitextfelder, die die auto-wachsende .auto-textarea-Variante
+   verwenden (z.B. "Prozess manuell hinzufügen" in taktzeiten.html,
+   "Stack-Override hinzufügen" in stack.html) - ohne diese Regel gewinnt
+   ".form-group textarea" (höhere Spezifität) und das Feld wird 60px hoch
+   statt einzeilig wie die danebenliegenden Process/SubProcess/Board-Taktzeit-
+   Eingabefelder (28px, siehe .form-group input oben). */
+.form-group textarea.auto-textarea {
+    height: auto;
+    min-height: 22px;
+    max-height: 50px;
+    resize: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--ekey-primary);
+    box-shadow: 0 0 0 2px rgba(232, 48, 138, 0.1);
+}
+
+.form-group input[type="checkbox"] {
+    width: 14px; height: 14px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 10px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--ekey-border);
+    margin-top: 12px;
+}
+
+/* =============================================================================
+   TABLES
+   ============================================================================= */
+
+.table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--ekey-border);
+}
+
+table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+
+table.data-table thead tr {
+    background: var(--ekey-table-header);
+}
+
+table.data-table thead th {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--ekey-primary);
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 2px solid var(--ekey-primary);
+    white-space: nowrap;
+}
+
+table.data-table tbody tr:nth-child(even) {
+    background: var(--ekey-table-row-alt);
+}
+
+table.data-table tbody tr:hover {
+    background: var(--ekey-table-header);
+}
+
+table.data-table tbody td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #E8E0ED;
+    vertical-align: middle;
+}
+
+/* Tabellen, die sich immer an die verfügbare Breite anpassen sollen, ohne
+   horizontalen Scrollbalken (Anforderung vom 06.10.2026, Auftragsübersicht):
+   Spaltenköpfe dürfen umbrechen, lange Zellinhalte ebenfalls; Freitext-
+   Zellen (.cell-clamp) werden auf 2 Zeilen begrenzt (voller Text im
+   Tooltip). */
+table.data-table.fit-table thead th {
+    white-space: normal;
+    vertical-align: bottom;
+}
+table.data-table.fit-table tbody td {
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+table.data-table.fit-table .cell-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
+table.data-table tfoot tr {
+    background: var(--ekey-table-header);
+    font-weight: bold;
+}
+
+table.data-table tfoot td {
+    padding: 5px 8px;
+    border-top: 2px solid var(--ekey-primary);
+}
+
+/* Eingabefelder direkt in Tabellenzellen (z.B. Rüstzeit-Zahlenfeld,
+   Stack/Transport-Inline-Bearbeitung, Big6Process-Auswahl auf
+   "Leitstand-Prozesse"): Formularelemente erben font-size/font-family
+   NICHT automatisch von umgebenden Elementen (Browser-Standardverhalten),
+   auch wenn table.data-table selbst font-size:10px setzt - ohne diese
+   Regel rendern sie in der Browser-Standardschrift/-größe statt im Rest
+   des App-Designs (Verdana 10px, wie .form-group input) bzw. abweichend
+   von den übrigen Textspalten derselben Tabelle (Anforderung vom
+   30.09.2026: Big6Prozess-Spalte soll im gleichen Schriftformat wie die
+   Prozessbaugruppe-Spalte erscheinen). */
+table.data-table input[type="text"],
+table.data-table input[type="number"],
+table.data-table input[type="time"],
+table.data-table select {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    color: var(--ekey-text);
+}
+
+/* Information-Freitextfelder (Taktzeiten-Liste, Rüstzeiten-Tabelle,
+   "Prozess manuell hinzufügen"): <textarea> statt <input>, damit der Text
+   umbricht statt einzeilig zu scrollen. Wächst per JS (autoResizeTextarea()
+   in base.html) automatisch mit dem Inhalt mit, bis max-height (= ca. 3
+   Zeilen) erreicht ist - danach scrollt das Feld intern (overflow-y:auto)
+   statt weiter zu wachsen. */
+.auto-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    line-height: 14px;
+    padding: 4px 8px;
+    border: 1px solid var(--ekey-border);
+    background: #FFFFFF;
+    color: var(--ekey-text);
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 22px;  /* ~1 Zeile + Padding, entspricht optisch den 28px hohen .form-group input-Feldern */
+    max-height: 50px;  /* ~3 Zeilen + Padding */
+}
+.auto-textarea:focus {
+    border-color: var(--ekey-primary);
+    box-shadow: 0 0 0 2px rgba(232, 48, 138, 0.1);
+}
+
+/* =============================================================================
+   FLASH MESSAGES
+   ============================================================================= */
+
+.flash-container {
+    position: fixed;
+    top: 68px;
+    right: 12px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 360px;
+}
+
+.flash-msg {
+    padding: 8px 12px;
+    font-size: 10px;
+    border-left: 3px solid;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.12);
+    animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+
+.flash-msg.success {
+    background: var(--ekey-success-bg);
+    border-color: var(--ekey-success);
+    color: var(--ekey-success);
+}
+.flash-msg.error {
+    background: var(--ekey-error-bg);
+    border-color: var(--ekey-error);
+    color: var(--ekey-error);
+}
+.flash-msg.warning {
+    background: var(--ekey-warning-bg);
+    border-color: var(--ekey-warning);
+    color: var(--ekey-warning);
+}
+.flash-msg.info {
+    background: var(--ekey-info-bg);
+    border-color: var(--ekey-info);
+    color: var(--ekey-info);
+}
+
+.flash-close {
+    cursor: pointer;
+    margin-left: auto;
+    font-weight: bold;
+    opacity: 0.6;
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 11px;
+}
+.flash-close:hover { opacity: 1; }
+
+/* =============================================================================
+   MODAL
+   ============================================================================= */
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+
+.modal-box {
+    position: relative;
+    background: #FFFFFF;
+    border: 1px solid var(--ekey-border);
+    min-width: 320px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 4px 4px 16px rgba(0,0,0,0.2);
+}
+
+/* PopUps (ganze Anwendung): verschiebbar per Klick+Halten auf die
+   Kopfzeile (.modal-header), größenveränderbar per Ziehen an der
+   Ecke unten rechts (.modal-resize-handle). Siehe base.html
+   (initModalDragAndResize) - wird generisch auf jede .modal-box
+   angewendet, unabhängig davon, welches PopUp es ist. */
+.modal-header { cursor: move; user-select: none; }
+.modal-box.ekey-dragging,
+.modal-box.ekey-resizing { transition: none; }
+.modal-resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+    background:
+        linear-gradient(135deg, transparent 0 45%, var(--ekey-border) 45% 55%, transparent 55% 100%),
+        linear-gradient(135deg, transparent 0 65%, var(--ekey-border) 65% 75%, transparent 75% 100%);
+    z-index: 1;
+}
+
+/* Breitere Variante für PopUps mit tabellarischen Inhalten (z.B.
+   Planungszusammenfassung) */
+.modal-box-lg {
+    max-width: 95vw;
+    width: fit-content;
+}
+
+/* Breite 22:9-Variante (z.B. Planungshistorie): feste Größe, Kopfbereich
+   (Header + Toolbar) und Footer bleiben fix, nur der Tabellenkörper
+   scrollt intern, wenn die Zeilen die Boxhöhe übersteigen. */
+.modal-box-229 {
+    width: 1100px;
+    max-width: 95vw;
+    height: 450px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.modal-box-229 .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+.modal-toolbar {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--ekey-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Filterfelder direkt in der Toolbar (z.B. Projektnummer/Produktionsstart
+   von-bis auf "Aufträge aus Leitstand"): nicht in .form-group verschachtelt,
+   erben daher NICHT automatisch die App-Schrift - ohne diese Regel rendern
+   sie in der Browser-Standardschrift statt im Format der übrigen
+   Tabellenspalten (z.B. [Produkt], Anforderung vom 30.09.2026). */
+.modal-toolbar input,
+.modal-toolbar select {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 10px;
+    color: var(--ekey-text);
+}
+
+.modal-header {
+    background: var(--ekey-table-header);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--ekey-primary);
+    border-bottom: 1px solid var(--ekey-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-body { padding: 14px; font-size: 10px; }
+.modal-footer {
+    padding: 8px 14px;
+    border-top: 1px solid var(--ekey-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* =============================================================================
+   BADGES / STATUS
+   ============================================================================= */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: bold;
+    border: 1px solid;
+}
+
+.badge-primary  { background: var(--ekey-table-header); color: var(--ekey-primary); border-color: var(--ekey-primary); }
+.badge-success  { background: var(--ekey-success-bg);   color: var(--ekey-success); border-color: var(--ekey-success); }
+.badge-error    { background: var(--ekey-error-bg);     color: var(--ekey-error);   border-color: var(--ekey-error);   }
+.badge-warning  { background: var(--ekey-warning-bg);   color: var(--ekey-warning); border-color: var(--ekey-warning); }
+.badge-muted    { background: #F0F0F0; color: var(--ekey-muted); border-color: var(--ekey-border); }
+
+/* =============================================================================
+   HOMEPAGE SPECIFICS
+   ============================================================================= */
+
+.home-layout {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* Titelbild links im Arbeitsbereich (Anforderung vom 2026-09-18) - die
+   Navigation selbst erfolgt weiterhin über das linke Seitenmenü
+   (Anforderung vom 2026-09-17), rechts daneben steht seit 2026-09-18 die
+   Planungshistorie (.home-history-area). */
+.home-image-area {
+    flex: 0 1 600px;
+    max-width: 600px;
+}
+
+.home-image-area img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--ekey-border);
+}
+
+/* Planungshistorie rechts neben dem Titelbild auf der Startseite
+   (Anforderung vom 2026-09-18) - nutzt dieselben .content-section/
+   .data-table-Bausteine wie der Rest der Anwendung. Die Spalte "Grund"
+   wird bewusst nicht als eigene Tabellenspalte angezeigt, sondern als
+   Mouseover (title-Attribut, wie auch sonst in der Anwendung für kurze
+   Hinweistexte verwendet, siehe z.B. auftraege/list.html) auf der
+   Projektnummer. */
+.home-history-area {
+    flex: 1;
+    min-width: 280px;
+}
+
+.home-buttons-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 160px;
+}
+
+.home-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--ekey-btn-bg);
+    border: 1px solid var(--ekey-border);
+    color: var(--ekey-primary);
+    font-size: 11px;
+    font-weight: bold;
+    font-family: Verdana, Geneva, sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.home-nav-btn:hover {
+    background: var(--ekey-primary);
+    color: white;
+    text-decoration: none;
+}
+.home-nav-btn .icon { font-size: 16px; min-width: 20px; text-align: center; }
+
+/* =============================================================================
+   UTILITIES
+   ============================================================================= */
+
+.text-primary  { color: var(--ekey-primary); }
+.text-muted    { color: var(--ekey-muted); }
+.text-error    { color: var(--ekey-error); }
+.text-success  { color: var(--ekey-success); }
+.text-right    { text-align: right; }
+.text-center   { text-align: center; }
+.text-bold     { font-weight: bold; }
+.text-sm       { font-size: 9px; }
+
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+
+.flex         { display: flex; }
+.flex-gap     { gap: 8px; }
+.align-center { align-items: center; }
+.flex-wrap    { flex-wrap: wrap; }
+
+.w-full       { width: 100%; }
+.hidden       { display: none !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F0EAF5; }
+::-webkit-scrollbar-thumb { background: var(--ekey-border); }
+::-webkit-scrollbar-thumb:hover { background: var(--ekey-primary); }

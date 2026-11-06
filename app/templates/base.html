@@ -3,12 +3,68 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}te App{% endblock %}</title>
-  {# Layout, Farben und Komponenten gemäß Skill "te-cd-app-design" umsetzen. #}
+  <title>{% block title %}{{ self.app_title() }}{% endblock %}</title>
+  {# technosert-App-Design (Skill te-appdesign / te-cd-app-design): nur ergänzen, nichts umdefinieren. #}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
-  <main>
+<div class="app-wrapper">
+
+  <!-- ===================== KOPFZEILE ===================== -->
+  <header class="app-header">
+    <div class="header-logo">
+      <img src="{{ url_for('static', filename='images/technosert_logo_white.png') }}" alt="technosert Logo">
+    </div>
+    <div class="header-title">
+      {% block app_title %}te App{% endblock %}
+      <span>{% block app_subtitle %}technosert electronic · Citizen Development{% endblock %}</span>
+    </div>
+    <div class="header-actions">
+      {% block header_actions %}{% endblock %}
+    </div>
+  </header>
+
+  <!-- ===================== MENÜ ===================== -->
+  <nav class="app-sidebar" id="appSidebar">
+    <div class="sidebar-toggle" title="Menü ein-/ausklappen">
+      <span id="sidebarToggleIcon">&#9664;</span>
+    </div>
+    {% block menu %}
+    <div class="sidebar-section">
+      <div class="sidebar-nav">
+        <a href="{{ url_for('main.index') }}"
+           class="{% if request.endpoint == 'main.index' %}active{% endif %} sidebar-text">&#127968; Startseite</a>
+      </div>
+    </div>
+    {% endblock %}
+  </nav>
+
+  <!-- ===================== ARBEITSBEREICH ===================== -->
+  <main class="app-main">
     {% block content %}{% endblock %}
   </main>
+
+  <!-- ===================== FUSSZEILE ===================== -->
+  <footer class="app-footer">
+    {% block footer %}technosert electronic GmbH &nbsp;|&nbsp; {{ self.app_title() }}{% endblock %}
+  </footer>
+
+</div>
+
+<!-- Flash-Meldungen -->
+<div class="flash-container" id="flashContainer">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash-msg {{ category }}">
+      <span>{{ message }}</span>
+      <button type="button" class="flash-close" title="Schließen">&#10005;</button>
+    </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+{# JavaScript nur als Datei – die Content-Security-Policy verbietet Inline-Skripte. #}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

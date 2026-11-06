@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Seite nicht gefunden{% endblock %}
 {% block content %}
-  <h1>Seite nicht gefunden</h1>
+  <div class="page-header">
+    <div><div class="page-title">Seite nicht gefunden</div></div>
+  </div>
   <p><a href="{{ url_for('main.index') }}">Zur Startseite</a></p>
 {% endblock %}

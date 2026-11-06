@@ -3,7 +3,7 @@
 # Ersatz für „Create from template“, das es in GitLab Community Edition nicht gibt.
 #
 # Ablauf (Git Bash):
-#   git clone https://gitlab.technosert.com/datascience/core/applications/CD_te_app_template.git meine-app
+#   git clone https://gitlab.technosert.com/technosert/cd_te_app_template.git meine-app
 #   cd meine-app
 #   bash scripts/new-app.sh              # Projektname = Ordnername
 #   bash scripts/new-app.sh andere-gruppe # optional andere GitLab-Gruppe (Pfad)
@@ -22,16 +22,18 @@ HOST="${GITLAB_HOST:-gitlab.technosert.com}"
 GROUP="${1:-datascience/core/applications}"
 NAME="$(basename "$PWD")"
 TEMPLATE_NAME="CD_te_app_template"
+TEMPLATE_LC="$(echo "$TEMPLATE_NAME" | tr '[:upper:]' '[:lower:]')"
 
 fail() { echo "FEHLER: $*" >&2; exit 1; }
 
 [ -f scripts/new-app.sh ] && [ -f .gitlab-ci.yml ] || fail "Bitte im Wurzelordner der geklonten Vorlage ausführen."
-[ "$NAME" != "$TEMPLATE_NAME" ] || fail "Der Ordner heißt noch '$TEMPLATE_NAME'. Vorlage unter dem Namen der neuen App klonen: git clone <url> meine-app"
+[ "$(echo "$NAME" | tr '[:upper:]' '[:lower:]')" != "$TEMPLATE_LC" ] || fail "Der Ordner heißt noch '$TEMPLATE_NAME'. Vorlage unter dem Namen der neuen App klonen: git clone <url> meine-app"
 [[ "$NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || fail "Ordnername '$NAME' ist kein gültiger GitLab-Projektpfad (nur Buchstaben, Ziffern, . _ -)."
 
 ORIGIN="$(git remote get-url origin 2>/dev/null || true)"
-case "$ORIGIN" in
-  *"/${TEMPLATE_NAME}.git"|*"/${TEMPLATE_NAME}") ;;
+# Vergleich ohne Groß-/Kleinschreibung (GitLab-Pfad: technosert/cd_te_app_template)
+case "$(echo "$ORIGIN" | tr '[:upper:]' '[:lower:]')" in
+  *"/${TEMPLATE_LC}.git"|*"/${TEMPLATE_LC}") ;;
   *) fail "Dieser Ordner ist kein frischer Klon von ${TEMPLATE_NAME} (origin: ${ORIGIN:-keins}). Abbruch, damit keine Historie verloren geht." ;;
 esac
 [ -z "$(git status --porcelain)" ] || fail "Es gibt nicht committete Änderungen. Bitte frisch klonen."

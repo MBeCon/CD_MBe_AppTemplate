@@ -1,6 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Start – te App{% endblock %}
+{% block title %}Start – {{ self.app_title() }}{% endblock %}
 {% block content %}
-  <h1>te App</h1>
-  <p>Umgebung: {{ app_env }}</p>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Startseite</div>
+      <div class="page-subtitle">Umgebung: {{ app_env }}</div>
+    </div>
+  </div>
+  <div class="content-section">
+    <div class="content-section-header">Willkommen</div>
+    <div class="content-section-body">
+      Diese Anwendung wurde aus der Vorlage CD_te_app_template erstellt.
+    </div>
+  </div>
 {% endblock %}

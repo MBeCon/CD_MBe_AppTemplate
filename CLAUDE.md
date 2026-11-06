@@ -10,20 +10,31 @@ nicht stillschweigend abweichen.
 - Python 3.13, Flask (Application Factory in `app/__init__.py`), Jinja2-Templates in `app/templates/`
 - gunicorn im Container, Konfiguration nur über Umgebungsvariablen (`.env.example`)
 - Tests mit pytest in `tests/`, Lint/Format mit ruff, Security mit bandit und pip-audit
-- UI: Skill **te-cd-app-design** verwenden (Farben, Schrift, Layout, Komponenten)
+- UI: technosert-App-Design – `app/static/css/style.css`, Logo `app/static/images/technosert_logo_white.png`,
+  Grundlayout in `app/templates/base.html`. Nur ergänzen, nichts umdefinieren.
+- JavaScript nur als Datei in `app/static/js/` (die Content-Security-Policy verbietet Inline-Skripte und `onclick=`).
 
 ## Befehle
 
+Windows (VS-Code-Terminal, PowerShell) – einmal pro Rechner bzw. Klon:
+
 ```bash
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements-dev.txt
-pre-commit install
-flask --app wsgi run --debug        # lokal starten (benötigt .env)
-pytest                              # Tests inkl. Coverage-Grenze
-pre-commit run --all-files          # alle lokalen QS-Checks
-pip-audit -r requirements.txt       # Abhängigkeiten auf Schwachstellen prüfen
-docker compose up --build           # Container lokal testen
+scripts\1_python_installieren.bat     # Python-Version aus .python-version (3.13) installieren
+scripts\2_umgebung_einrichten.bat     # .venv, Pakete, pre-commit, .env, Tests
+scripts\3_aenderungen_hochladen.bat   # Branch, Commit, Push, Merge Request – nie auf main
 ```
+
+Werkzeuge immer mit `python -m` aufrufen (funktioniert auch, wenn .exe-Dateien in der .venv gesperrt sind):
+
+```bash
+python -m flask --app wsgi run --debug    # lokal starten (benötigt .env)
+python -m pytest                          # Tests inkl. Coverage-Grenze
+python -m pre_commit run --all-files      # alle lokalen QS-Checks
+python -m pip_audit -r requirements.txt   # Abhängigkeiten auf Schwachstellen prüfen
+docker compose up --build                 # Container lokal testen
+```
+
+macOS/Linux: `bash scripts/setup-dev.sh`, danach `source .venv/bin/activate`.
 
 ## Arbeitsweise (Git)
 
@@ -62,13 +73,14 @@ docker compose up --build           # Container lokal testen
 ### Was du nie tust
 - QS-Prüfungen umgehen: kein `--no-verify`, kein Deaktivieren von ruff-, bandit- oder Test-Regeln,
   kein `# noqa` / `# nosec` ohne Begründung im Kommentar.
-- `.gitlab-ci.yml`, `.gitlab/`, `renovate.json`, `.pre-commit-config.yaml`, `.claude/` oder `pyproject.toml` ändern,
+- `.gitlab-ci.yml`, `.gitlab/`, `renovate.json`, `.pre-commit-config.yaml`, `.claude/`, `pyproject.toml`,
+  `.python-version` oder die Skripte in `scripts/` ändern,
   ohne dass dies ausdrücklich verlangt wurde.
 - Force-Push oder direkter Push auf `main`.
 
 ## Definition of Done
 
 Eine Aufgabe ist erst fertig, wenn:
-1. `pre-commit run --all-files` und `pytest` lokal grün sind,
+1. `python -m pre_commit run --all-files` und `python -m pytest` lokal grün sind,
 2. neue Umgebungsvariablen in `.env.example` und neue Funktionen im README beschrieben sind,
 3. `APP_INFO.md` aktuell ist, falls sich Zweck, Daten oder Nutzerkreis geändert haben.

@@ -3,6 +3,8 @@
 .gitlab-ci.yml
 renovate.json
 .claude
+.vscode
+.python-version
 .env
 .env.*
 .venv

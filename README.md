@@ -4,7 +4,7 @@ Vorlage für interne te-Anwendungen aus dem Citizen Development (Python/Flask, D
 GitLab-Pipeline). Jedes neue Projekt startet aus diesem Template. Damit ist die
 Qualitätssicherung von Anfang an eingebaut und muss nicht pro Projekt neu erfunden werden.
 
-**Projekt auf GitLab:** `https://gitlab.technosert.com/datascience/core/applications/CD_te_app_template`
+**Projekt auf GitLab:** `https://gitlab.technosert.com/technosert/cd_te_app_template`
 (GitLab Community Edition, selbst betrieben).
 
 ## Zusammenspiel mit `datascience/core/applications/CD_te_skills`
@@ -12,7 +12,7 @@ Qualitätssicherung von Anfang an eingebaut und muss nicht pro Projekt neu erfun
 | Repo | Rolle | Wie genutzt |
 |---|---|---|
 | `datascience/core/applications/CD_te_skills` | **Wissen für Claude**: Skills `te-cd-qs-review` (Review) und `te-cd-app-design` (Design) im Plugin `te-cd-qs` | Einmal pro Entwickler installiert (`claude plugin install te-cd-qs@CD_te_skills`), aktualisiert sich selbst |
-| `datascience/core/applications/CD_te_app_template` (dieses Repo) | **Kopiervorlage**: Pipeline, pre-commit, `CLAUDE.md`, Hooks, Dockerfile, App-Grundgerüst, App-Steckbrief, Verweis auf CD_te_skills | Pro neuer Anwendung einmal kopiert (`scripts/new-app.sh`) |
+| `technosert/cd_te_app_template` (dieses Repo) | **Kopiervorlage**: Pipeline, pre-commit, `CLAUDE.md`, Hooks, Dockerfile, App-Grundgerüst, App-Steckbrief, Verweis auf CD_te_skills | Pro neuer Anwendung einmal kopiert (`scripts/new-app.sh`) |
 
 Die Skills sagen Claude, *was gute Qualität ist*. Das Template sorgt dafür, dass jedes Projekt
 *so aufgebaut ist und verbindlich geprüft wird*.
@@ -29,29 +29,34 @@ Die Skills sagen Claude, *was gute Qualität ist*. Das Template sorgt dafür, da
 
 ## Neues Projekt anlegen
 
+Ausführliche Anleitung mit allen Schritten: PDF **„Neues Projekt starten“**
+(`CD_te_Neues-Projekt_Vorgangsbeschreibung.pdf`). Kurzfassung für Windows, alle Befehle im
+VS-Code-Terminal:
+
 GitLab CE kennt keine eigenen Projektvorlagen („Create from template“ ist eine Premium-Funktion).
 Neue Projekte entstehen deshalb per Skript aus dem aktuellen Stand von `main` dieser Vorlage:
 
-1. Vorlage unter dem Namen der neuen Anwendung klonen und das Skript ausführen (Git Bash):
+1. Vorlage unter dem Namen der neuen Anwendung klonen und das GitLab-Projekt anlegen:
    ```bash
-   git clone https://gitlab.technosert.com/datascience/core/applications/CD_te_app_template.git meine-app
-   cd meine-app
-   bash scripts/new-app.sh
+   git clone https://gitlab.technosert.com/technosert/cd_te_app_template.git CD_te_<AppName>
+   cd CD_te_<AppName>
+   scripts\0_neues_projekt_anlegen.bat      # macOS/Linux bzw. Git Bash: bash scripts/new-app.sh
+   code .
    ```
    Das Skript entfernt die Historie der Vorlage, legt einen ersten Commit an und erzeugt per Push
-   das private Projekt `datascience/core/applications/meine-app` auf GitLab. Der Commit nennt den Vorlagen-Stand,
-   aus dem das Projekt entstanden ist.
-2. Lokal einrichten:
+   das private Projekt `datascience/core/applications/CD_te_<AppName>` auf GitLab. Der Commit nennt
+   den Vorlagen-Stand, aus dem das Projekt entstanden ist.
+2. Python und Umgebung einrichten:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate          # Windows: .venv\Scripts\activate
-   pip install -r requirements-dev.txt
-   pre-commit install
-   cp .env.example .env               # SECRET_KEY setzen
+   scripts\1_python_installieren.bat        # Python 3.13 aus .python-version (danach VS Code neu starten)
+   scripts\2_umgebung_einrichten.bat        # .venv, Pakete, pre-commit, .env mit SECRET_KEY, Tests
    ```
-3. Anpassen: Projektname in `pyproject.toml`, `APP_INFO.md` ausfüllen,
-   Platzhalter in `.gitlab/CODEOWNERS` ersetzen, Deploy-Schritt in `.gitlab-ci.yml` einsetzen.
-4. Ersten Push durchführen, Pipeline einmal laufen lassen, dann die GitLab-QS aktivieren:
+   macOS/Linux: `bash scripts/setup-dev.sh`.
+3. Starten und ansehen: `python -m flask --app wsgi run --debug` → http://127.0.0.1:5000
+4. Anpassen: App-Titel in `app/templates/base.html` (`{% block app_title %}`), Projektname in
+   `pyproject.toml`, `README.md`, `APP_INFO.md` ausfüllen, `.gitlab/CODEOWNERS` auf den App-Owner setzen.
+5. Hochladen: `scripts\3_aenderungen_hochladen.bat` (Branch, Commit, Push, Merge Request).
+6. Einmalig durch einen Maintainer, nachdem die Pipeline einmal gelaufen ist:
    ```bash
    bash scripts/setup-gitlab.sh
    ```
@@ -59,30 +64,35 @@ Neue Projekte entstehen deshalb per Skript aus dem aktuellen Stand von `main` di
 ## Täglicher Ablauf
 
 ```bash
-git switch -c feature/meine-aenderung
-# … mit Claude Code entwickeln …
-pytest
-pre-commit run --all-files
+git switch main
+git pull
+claude                                    # mit Claude Code entwickeln
+python -m pytest
 # In Claude Code: /te-cd-qs:te-cd-qs-review  → automatischer + inhaltlicher Review mit Urteil
-git push -u origin feature/meine-aenderung
-# Merge Request öffnen → Pipeline grün + Freigabe durch einen Kollegen → Squash-Merge → Deployment
+scripts\3_aenderungen_hochladen.bat       # Branch, Commit, Push, Merge Request
+# Merge Request → Pipeline grün + Merge durch einen Maintainer (nie der Autor) → Deployment
 ```
 
-Lokal starten: `flask --app wsgi run --debug`, Container testen: `docker compose up --build`.
+Lokal starten: `python -m flask --app wsgi run --debug`, Container testen: `docker compose up --build`.
 
 ## Struktur
 
 ```
 app/                    Flask-Anwendung (Factory, Blueprints, Templates)
+app/static/             technosert-Design: css/style.css, js/app.js, images/technosert_logo_white.png
 tests/                  pytest-Tests
 wsgi.py                 Einstiegspunkt für gunicorn
+.python-version         Python-Version (3.13) für die Einrichtungsskripte
 Dockerfile              Produktions-Image (non-root, Health-Check)
 CLAUDE.md               Verbindliche Regeln für Claude Code
 .claude/                Hooks, Rechte und Verweis auf das QS-Plugin te-cd-qs
+.vscode/                Gemeinsame Editor-Einstellungen, empfohlene Erweiterungen
 .pre-commit-config.yaml Lokale Checks
 .gitlab-ci.yml          CI/CD-Pipeline
 .gitlab/                MR-Template, CODEOWNERS
 renovate.json           Automatische Update-MRs (Renovate)
+scripts/0_…3_….bat      Windows: Projekt anlegen, Python installieren, Umgebung einrichten, hochladen
+scripts/setup-dev.*     Einrichtung (Windows: .ps1, macOS/Linux: .sh)
 scripts/new-app.sh      Neues Projekt aus dieser Vorlage anlegen
 scripts/setup-gitlab.sh Geschützter Branch & Merge-Regeln per glab CLI
 APP_INFO.md             App-Steckbrief (Owner, Daten, Risiko) für das App-Register
@@ -102,6 +112,8 @@ APP_INFO.md             App-Steckbrief (Owner, Daten, Risiko) für das App-Regis
   geplante Pipeline). Ohne Bot bleiben Updates manuell.
 - **Katalog-Adresse:** `https://gitlab.technosert.com/datascience/core/applications/CD_te_skills.git`. Zieht der Server
   oder die Gruppe um, die Adresse überall anpassen (auch in `.claude/settings.json`).
+- **Python-Version** steht in `.python-version`, `pyproject.toml`, `Dockerfile` und `.gitlab-ci.yml` –
+  nur gemeinsam ändern.
 - **Claude-Code-Hooks** rufen `python` auf. Auf macOS ggf. in `.claude/settings.json`
   auf `python3` ändern.
 - **Coverage-Grenze** (70 %) steht in `pyproject.toml`. Sie darf erhöht, aber nicht gesenkt werden.
