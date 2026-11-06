@@ -1,5 +1,5 @@
 # Verantwortliche für dieses Repository (GitLab-Benutzer oder -Gruppe). Neue Apps: "*" auf den App-Owner ändern,
-# z. B. "* @datascience/core/applications". Änderungen an Pipeline und QS-Konfiguration besonders schützen.
+# z. B. "* @technosert/datawarehousehub/applications". Änderungen an Pipeline und QS-Konfiguration besonders schützen.
 # Hinweis: GitLab CE wertet CODEOWNERS nicht aus (Premium-Funktion); die Datei dokumentiert die
 # Verantwortlichen. Verbindlich ist bei uns: Merge nur durch Maintainer, nie durch den Autor.
 *                         @mbrunner

@@ -9,7 +9,7 @@
 #   - Die Pipeline ist mindestens einmal gelaufen
 #
 # Aufruf im Repo-Verzeichnis (Git Bash):   bash scripts/setup-gitlab.sh
-# oder für ein anderes Projekt:            bash scripts/setup-gitlab.sh datascience/core/applications/mein-repo
+# oder für ein anderes Projekt:            bash scripts/setup-gitlab.sh technosert/datawarehousehub/applications/mein-repo
 #
 # Pflicht-Freigaben, Code-Owner-Pflicht und Push-Regeln gibt es in CE nicht. Das Vier-Augen-Prinzip
 # wird organisatorisch umgesetzt: Nur Maintainer dürfen nach main mergen, nie der Autor selbst.

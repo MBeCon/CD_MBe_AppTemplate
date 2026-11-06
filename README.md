@@ -7,11 +7,11 @@ Qualitätssicherung von Anfang an eingebaut und muss nicht pro Projekt neu erfun
 **Projekt auf GitLab:** `https://gitlab.technosert.com/technosert/cd_te_app_template`
 (GitLab Community Edition, selbst betrieben).
 
-## Zusammenspiel mit `datascience/core/applications/CD_te_skills`
+## Zusammenspiel mit `technosert/cd_te_skills`
 
 | Repo | Rolle | Wie genutzt |
 |---|---|---|
-| `datascience/core/applications/CD_te_skills` | **Wissen für Claude**: Skills `te-cd-qs-review` (Review) und `te-cd-app-design` (Design) im Plugin `te-cd-qs` | Einmal pro Entwickler installiert (`claude plugin install te-cd-qs@CD_te_skills`), aktualisiert sich selbst |
+| `technosert/cd_te_skills` | **Wissen für Claude**: Skills `te-cd-qs-review` (Review) und `te-cd-app-design` (Design) im Plugin `te-cd-qs` | Einmal pro Entwickler installiert (`claude plugin install te-cd-qs@CD_te_skills`), aktualisiert sich selbst |
 | `technosert/cd_te_app_template` (dieses Repo) | **Kopiervorlage**: Pipeline, pre-commit, `CLAUDE.md`, Hooks, Dockerfile, App-Grundgerüst, App-Steckbrief, Verweis auf CD_te_skills | Pro neuer Anwendung einmal kopiert (`scripts/new-app.sh`) |
 
 Die Skills sagen Claude, *was gute Qualität ist*. Das Template sorgt dafür, dass jedes Projekt
@@ -44,7 +44,7 @@ Neue Projekte entstehen deshalb per Skript aus dem aktuellen Stand von `main` di
    code .
    ```
    Das Skript entfernt die Historie der Vorlage, legt einen ersten Commit an und erzeugt per Push
-   das private Projekt `datascience/core/applications/CD_te_<AppName>` auf GitLab. Der Commit nennt
+   das private Projekt `technosert/datawarehousehub/applications/CD_te_<AppName>` auf GitLab. Der Commit nennt
    den Vorlagen-Stand, aus dem das Projekt entstanden ist.
 2. Python und Umgebung einrichten:
    ```bash
@@ -110,7 +110,7 @@ APP_INFO.md             App-Steckbrief (Owner, Daten, Risiko) für das App-Regis
   (Job `docker` nutzt Docker-in-Docker).
 - **Renovate** braucht einen Renovate-Bot für eure GitLab-Instanz (z. B. *renovate-runner* als
   geplante Pipeline). Ohne Bot bleiben Updates manuell.
-- **Katalog-Adresse:** `https://gitlab.technosert.com/datascience/core/applications/CD_te_skills.git`. Zieht der Server
+- **Katalog-Adresse:** `https://gitlab.technosert.com/technosert/cd_te_skills.git`. Zieht der Server
   oder die Gruppe um, die Adresse überall anpassen (auch in `.claude/settings.json`).
 - **Python-Version** steht in `.python-version`, `pyproject.toml`, `Dockerfile` und `.gitlab-ci.yml` –
   nur gemeinsam ändern.
@@ -123,7 +123,7 @@ APP_INFO.md             App-Steckbrief (Owner, Daten, Risiko) für das App-Regis
 ## QS-Review über das Plugin `te-cd-qs`
 
 Der QS-Review-Skill liegt **nicht** in diesem Repo, sondern zentral im internen
-Plugin-Katalog **`datascience/core/applications/CD_te_skills`**. So nutzen alle Projekte immer dieselbe, geprüfte Version.
+Plugin-Katalog **`technosert/cd_te_skills`**. So nutzen alle Projekte immer dieselbe, geprüfte Version.
 
 `.claude/settings.json` verweist bereits auf den Katalog und aktiviert das Plugin
 (`extraKnownMarketplaces`, `enabledPlugins`, Auto-Update an). Beim ersten Öffnen des Projekts
@@ -132,10 +132,10 @@ nicht verfügbar ist, einmalig ausführen:
 
 ```bash
 glab auth login --hostname gitlab.technosert.com  # Zugriff auf das private Katalog-Repo (Git-Credential-Helper aktivieren)
-claude plugin marketplace add https://gitlab.technosert.com/datascience/core/applications/CD_te_skills.git
+claude plugin marketplace add https://gitlab.technosert.com/technosert/cd_te_skills.git
 claude plugin install te-cd-qs@CD_te_skills
 ```
 
 Aufruf in Claude Code: `/te-cd-qs:te-cd-qs-review` oder einfach „Bitte vor dem MR reviewen“.
 Der Review ersetzt nicht das Review durch einen Kollegen, sondern bereitet es vor.
-Details, Updates und neue Skills: README im Repo `datascience/core/applications/CD_te_skills`.
+Details, Updates und neue Skills: README im Repo `technosert/cd_te_skills`.

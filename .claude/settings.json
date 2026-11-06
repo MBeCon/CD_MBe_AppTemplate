@@ -40,7 +40,7 @@
     "CD_te_skills": {
       "source": {
         "source": "git",
-        "url": "https://gitlab.technosert.com/datascience/core/applications/CD_te_skills.git"
+        "url": "https://gitlab.technosert.com/technosert/cd_te_skills.git"
       },
       "autoUpdate": true
     }

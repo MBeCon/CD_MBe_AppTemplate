@@ -19,7 +19,7 @@
 set -euo pipefail
 
 HOST="${GITLAB_HOST:-gitlab.technosert.com}"
-GROUP="${1:-datascience/core/applications}"
+GROUP="${1:-technosert/datawarehousehub/applications}"
 NAME="$(basename "$PWD")"
 TEMPLATE_NAME="CD_te_app_template"
 TEMPLATE_LC="$(echo "$TEMPLATE_NAME" | tr '[:upper:]' '[:lower:]')"
