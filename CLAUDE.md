@@ -22,6 +22,7 @@ Windows (VS-Code-Terminal, PowerShell) – einmal pro Rechner bzw. Klon:
 scripts\1_python_installieren.bat     # Python-Version aus .python-version (3.13) installieren
 scripts\2_umgebung_einrichten.bat     # .venv, Pakete, pre-commit, .env, Tests
 scripts\3_aenderungen_hochladen.bat   # Branch, Commit, Push, Merge Request – nie auf main
+scripts\4_gitlab_einrichten.bat      # einmalig (Maintainer): geschützter Branch, Merge-Regeln
 ```
 
 Werkzeuge immer mit `python -m` aufrufen (funktioniert auch, wenn .exe-Dateien in der .venv gesperrt sind):

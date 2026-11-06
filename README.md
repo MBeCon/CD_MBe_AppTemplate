@@ -58,7 +58,7 @@ Neue Projekte entstehen deshalb per Skript aus dem aktuellen Stand von `main` di
 5. Hochladen: `scripts\3_aenderungen_hochladen.bat` (Branch, Commit, Push, Merge Request).
 6. Einmalig durch einen Maintainer, nachdem die Pipeline einmal gelaufen ist:
    ```bash
-   bash scripts/setup-gitlab.sh
+   scripts\4_gitlab_einrichten.bat        # Git Bash: bash scripts/setup-gitlab.sh
    ```
 
 ## Täglicher Ablauf
@@ -91,10 +91,12 @@ CLAUDE.md               Verbindliche Regeln für Claude Code
 .gitlab-ci.yml          CI/CD-Pipeline
 .gitlab/                MR-Template, CODEOWNERS
 renovate.json           Automatische Update-MRs (Renovate)
-scripts/0_…3_….bat      Windows: Projekt anlegen, Python installieren, Umgebung einrichten, hochladen
+scripts/0_…4_….bat      Windows: Projekt anlegen, Python installieren, Umgebung einrichten, hochladen,
+                        GitLab-QS einrichten
 scripts/setup-dev.*     Einrichtung (Windows: .ps1, macOS/Linux: .sh)
 scripts/new-app.sh      Neues Projekt aus dieser Vorlage anlegen
-scripts/setup-gitlab.sh Geschützter Branch & Merge-Regeln per glab CLI
+scripts/setup-gitlab.sh Geschützter Branch & Merge-Regeln per glab CLI (Windows: 4_gitlab_einrichten.bat)
+scripts/pytest_vor_push.py  Tests vor dem Push immer mit dem Python aus .venv
 APP_INFO.md             App-Steckbrief (Owner, Daten, Risiko) für das App-Register
 ```
 

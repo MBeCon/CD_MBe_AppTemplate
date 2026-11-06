@@ -41,12 +41,13 @@ repos:
         args: ["-c", "pyproject.toml"]
         additional_dependencies: ["bandit[toml]"]
 
-  # Tests laufen vor dem Push (nicht bei jedem Commit), benötigt aktive .venv
+  # Tests laufen vor dem Push (nicht bei jedem Commit) - immer mit dem Python aus .venv,
+  # auch wenn sie im Terminal nicht aktiviert ist (siehe scripts/pytest_vor_push.py)
   - repo: local
     hooks:
       - id: pytest
         name: pytest (vor Push)
-        entry: python -m pytest -q
+        entry: python scripts/pytest_vor_push.py
         language: system
         pass_filenames: false
         stages: [pre-push]
