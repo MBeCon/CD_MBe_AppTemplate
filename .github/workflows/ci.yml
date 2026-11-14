@@ -1,0 +1,126 @@
+# Verbindliche QS-Ebene: Diese Jobs müssen grün sein, bevor ein Pull Request nach main
+# gemergt werden darf (Required status checks, siehe scripts/setup-github.sh).
+# Deployment läuft nur nach einem Merge auf main und nur, wenn alle Jobs grün sind.
+# Ersetzt die frühere .gitlab-ci.yml (gleiche Jobs: lint, test, security, secrets, docker).
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Neuer Commit bricht laufende Prüfungen desselben Branches/PRs ab
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Images exakt gepinnt; Renovate (renovate.json) schlägt Updates per Pull Request vor.
+  PYTHON_VERSION: "3.13"
+  GITLEAKS_IMAGE: "zricethezav/gitleaks:v8.30.1"
+  TRIVY_IMAGE: "aquasec/trivy:0.76.1"
+  HADOLINT_IMAGE: "hadolint/hadolint:v2.15.1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      # Befunde als Anmerkungen direkt im Pull Request, danach lesbare Ausgabe als Gate
+      - run: ruff check --output-format=github .
+      - run: ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      # pytest mit Mindest-Coverage (siehe pyproject.toml)
+      - run: pytest --junitxml=report.xml --cov-report=xml
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            report.xml
+            coverage.xml
+          retention-days: 14
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: bandit -c pyproject.toml -r app             # Sicherheitsanalyse Code
+      - run: pip-audit -r requirements.txt --strict      # bekannte Schwachstellen in Abhängigkeiten
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # gesamte Historie scannen
+      - name: gitleaks
+        run: docker run --rm -v "$PWD:/repo" -w /repo "$GITLEAKS_IMAGE" git --redact --verbose .
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: hadolint (Dockerfile-Prüfung)
+        run: docker run --rm -i "$HADOLINT_IMAGE" < Dockerfile
+      - name: Image bauen
+        run: docker build -t "app:${GITHUB_SHA}" .
+      - name: Smoke-Test (Container startet, /health antwortet)
+        run: |
+          docker run -d --name smoke -p 8000:8000 -e SECRET_KEY=ci-smoke-test -e APP_ENV=ci "app:${GITHUB_SHA}"
+          for _ in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8000/health; then echo; ok=1; break; fi
+            sleep 1
+          done
+          if [ -z "${ok:-}" ]; then docker logs smoke; exit 1; fi
+      - name: Trivy (Schwachstellen im Image)
+        run: |
+          docker save "app:${GITHUB_SHA}" -o image.tar
+          docker run --rm -v "$PWD:/work" "$TRIVY_IMAGE" image --input /work/image.tar \
+            --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --no-progress
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [lint, test, security, secrets, docker]
+    runs-on: ubuntu-latest
+    # GitHub-Environment "production": dort Secrets hinterlegen und optional
+    # "Required reviewers" für eine manuelle Freigabe setzen.
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+      # Deployment (PLATZHALTER – durch euren bestehenden Schritt ersetzen)
+      - run: |
+          echo "Hier den bestehenden Deployment-Schritt einsetzen."
+          echo "Empfehlung - Image mit Tag ${GITHUB_SHA} bauen/veröffentlichen (z. B. in die GitHub Container Registry ghcr.io),"
+          echo "damit jede Version eindeutig zuordenbar und ein Rollback möglich ist."
+          echo "Secrets nur über Environment-Secrets, nie im Repo oder Image."

@@ -1,0 +1,11 @@
+# Verantwortliche für dieses Repository (GitHub-Benutzer oder Team, z. B. @MBeCon/<team>).
+# Neue Apps: "*" auf den App-Owner ändern. Änderungen an Pipeline und QS-Konfiguration besonders schützen.
+# GitHub fordert die Freigabe der Code-Owner an, wenn im Branch-Schutz "Require review from Code Owners"
+# aktiv ist. Platzhalter <github-benutzer> durch den echten GitHub-Benutzernamen ersetzen und
+# die Zeilen einkommentieren.
+# *                         @<github-benutzer>
+# /.github/                 @<github-benutzer>
+# /renovate.json            @<github-benutzer>
+# /.pre-commit-config.yaml  @<github-benutzer>
+# /.claude/                 @<github-benutzer>
+# /pyproject.toml           @<github-benutzer>
