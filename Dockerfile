@@ -9,8 +9,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Eigener, unprivilegierter Benutzer – Container läuft nie als root
-RUN groupadd --system app && useradd --system --gid app --no-create-home app
+# Eigener, unprivilegierter Benutzer mit fester numerischer ID – Container läuft nie als root.
+# Numerisch, damit Host/Orchestrierung "kein root" prüfen können (hadolint DL3066).
+RUN groupadd --system --gid 10001 app && useradd --system --uid 10001 --gid app --no-create-home app
 
 COPY requirements.txt .
 # Laufzeitpakete installieren, danach pip entfernen: wird im Betrieb nicht gebraucht und
@@ -21,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
 COPY app/ app/
 COPY wsgi.py .
 
-USER app
+USER 10001:10001
 
 EXPOSE 8000
 
