@@ -9,6 +9,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Sicherheitsupdates der Debian-Pakete einspielen: Das Basis-Image wird nur periodisch neu
+# gebaut, Trivy (CI-Job docker) meldet sonst behobene HIGH/CRITICAL-Lücken im Betriebssystem.
+RUN apt-get update \
+    && apt-get upgrade --yes --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
 # Eigener, unprivilegierter Benutzer mit fester numerischer ID – Container läuft nie als root.
 # Numerisch, damit Host/Orchestrierung "kein root" prüfen können (hadolint DL3066).
 RUN groupadd --system --gid 10001 app && useradd --system --uid 10001 --gid app --no-create-home app
