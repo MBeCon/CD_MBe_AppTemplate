@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title_suffix %} — Einstellungen{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">&#9881; Einstellungen</div>
+    <div class="page-subtitle">Anzeige und Systeminformationen</div>
+  </div>
+  <div>
+    <button type="button" class="btn btn-primary" id="saveSettingsBtn" title="Einstellungen in diesem Browser speichern">Speichern</button>
+  </div>
+</div>
+
+<div id="settingsSaved" class="alert alert-success" style="display:none;">Einstellungen gespeichert.</div>
+
+<div class="panel">
+  <div class="panel-header"><span>Darstellung</span><span class="text-muted text-small">gilt nur für diesen Browser</span></div>
+  <div class="panel-body">
+    <div class="check-row">
+      <input type="checkbox" id="optSidebarCollapsed">
+      <label for="optSidebarCollapsed">Menüleiste eingeklappt anzeigen</label>
+      <span class="info-icon" title="Die Menüleiste lässt sich jederzeit mit &#8942; ein- und ausklappen.">i</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel mt-16">
+  <div class="panel-header"><span>Systeminformationen</span></div>
+  <div class="panel-body">
+    <div class="kv-section-title">Anwendung</div>
+    <div class="kv-grid">
+      <div class="kv-item"><span class="kv-label">Name</span><span class="kv-value">{{ self.app_title() }}</span></div>
+      <div class="kv-item"><span class="kv-label">Umgebung (APP_ENV)</span><span class="kv-value">{{ app_env }}</span></div>
+      <div class="kv-item"><span class="kv-label">Log-Level</span><span class="kv-value">{{ log_level }}</span></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/einstellungen.js') }}"></script>
+{% endblock %}

@@ -1,8 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Fehler{% endblock %}
+{% block title_suffix %} — Fehler{% endblock %}
 {% block content %}
-  <div class="page-header">
-    <div><div class="page-title">Es ist ein Fehler aufgetreten</div></div>
+<div class="page-header">
+  <div>
+    <div class="page-title">&#9888; Es ist ein Fehler aufgetreten</div>
+    <div class="page-subtitle">Der Fehler wurde protokolliert.</div>
   </div>
-  <p>Bitte später erneut versuchen. Der Fehler wurde protokolliert.</p>
+  <div><a class="btn btn-primary" href="{{ url_for('main.index') }}">Zur Startseite</a></div>
+</div>
+<div class="alert alert-error">Bitte später erneut versuchen.</div>
 {% endblock %}

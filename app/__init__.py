@@ -45,6 +45,11 @@ def create_app(test_config: dict | None = None) -> Flask:
 
     app.register_blueprint(bp)
 
+    @app.context_processor
+    def inject_layout_vars():
+        # Für Kopfzeile (Umgebungs-Badge) und Startseite in allen Templates verfügbar
+        return {"app_env": app.config["APP_ENV"]}
+
     @app.after_request
     def set_security_headers(response):
         response.headers.setdefault("X-Content-Type-Options", "nosniff")

@@ -10,9 +10,13 @@ nicht stillschweigend abweichen.
 - Python 3.13, Flask (Application Factory in `app/__init__.py`), Jinja2-Templates in `app/templates/`
 - gunicorn im Container, Konfiguration nur über Umgebungsvariablen (`.env.example`)
 - Tests mit pytest in `tests/`, Lint/Format mit ruff, Security mit bandit und pip-audit
-- UI: technosert-App-Design – `app/static/css/style.css`, Logo `app/static/images/technosert_logo_white.png`,
-  Grundlayout in `app/templates/base.html`. Nur ergänzen, nichts umdefinieren.
+- UI: MBe-Design wie MBeTradingHub (Skill `mbe-design`) – `app/static/css/style.css`,
+  Logo `app/static/images/MBe_Button_violett.png`, Favicon `app/static/images/favicon.ico`,
+  Grundlayout in `app/templates/base.html`, Seitenmuster in `app/templates/beispiel.html`.
+  Nur ergänzen, nichts umdefinieren; keine eigenen Farben, Schriftgrößen oder Komponenten.
 - JavaScript nur als Datei in `app/static/js/` (die Content-Security-Policy verbietet Inline-Skripte und `onclick=`).
+  Gemeinsame Helfer (`openModal`, `closeModal`, `escHtml`, `fmtNum`, `withBusy` …) stehen in `app.js`;
+  Popups/Menü über `data-open-modal`, `data-close-modal`, `data-action` verdrahten, Seitenlogik in `js/<seite>.js`.
 
 ## Befehle
 
@@ -21,8 +25,8 @@ Windows (VS-Code-Terminal, PowerShell) – einmal pro Rechner bzw. Klon:
 ```bash
 scripts\1_python_installieren.bat     # Python-Version aus .python-version (3.13) installieren
 scripts\2_umgebung_einrichten.bat     # .venv, Pakete, pre-commit, .env, Tests
-scripts\3_aenderungen_hochladen.bat   # Branch, Commit, Push, Merge Request – nie auf main
-scripts\4_gitlab_einrichten.bat      # einmalig (Maintainer): geschützter Branch, Merge-Regeln
+scripts\3_aenderungen_hochladen.bat   # Branch, Commit, Push, Pull Request – nie auf main
+scripts\4_github_einrichten.bat      # einmalig (Admin): geschützter Branch, Merge-Regeln (gh CLI)
 ```
 
 Werkzeuge immer mit `python -m` aufrufen (funktioniert auch, wenn .exe-Dateien in der .venv gesperrt sind):
@@ -41,10 +45,10 @@ macOS/Linux: `bash scripts/setup-dev.sh`, danach `source .venv/bin/activate`.
 
 - Nie direkt auf `main` arbeiten. Für jede Änderung einen Branch `feature/…` oder `fix/…` anlegen.
 - Kleine, nachvollziehbare Commits mit aussagekräftiger Nachricht.
-- Änderungen kommen nur über Merge Request nach `main`. Ein anderer Entwickler reviewt.
-- Vor jedem Merge Request den Skill `te-cd-qs-review` aus dem Plugin `te-cd-qs` ausführen
+- Änderungen kommen nur über Pull Request (GitHub `MBeCon`) nach `main`. Ein anderer Entwickler reviewt.
+- Vor jedem Pull Request den Skill `te-cd-qs-review` aus dem Plugin `te-cd-qs` ausführen
   (`/te-cd-qs:te-cd-qs-review`). Bei Urteil ❌
-  wird kein MR erstellt.
+  wird kein PR erstellt.
 
 ## Verbindliche Regeln
 
