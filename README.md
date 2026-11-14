@@ -44,7 +44,7 @@ Die Skills sagen Claude, *was gute Qualität ist*. Das Template sorgt dafür, da
 |---|---|---|---|
 | 1. Beim Entwickeln | Claude Code (`CLAUDE.md`, `.claude/`) | Projektregeln, ruff nach jeder Änderung, Blockade von `--no-verify` / Push auf main, QS-Review `/te-cd-qs:te-cd-qs-review` (Plugin) | Unterstützend |
 | 2. Vor Commit/Push | pre-commit (`.pre-commit-config.yaml`) | ruff, gitleaks, bandit, Dateichecks; pytest vor dem Push | Unterstützend (umgehbar) |
-| 3. Im Merge Request | GitLab CI/CD (`.gitlab-ci.yml`) + geschützter Branch | lint, test (Coverage ≥ 70 %), security (bandit, pip-audit), secrets (gitleaks), docker (hadolint, Smoke-Test, Trivy) + Merge durch Maintainer | **Ja – Gate für main** |
+| 3. Im Pull Request | GitHub Actions (`.github/workflows/ci.yml`) + geschützter Branch | lint, test (Coverage ≥ 70 %), security (bandit, pip-audit), secrets (gitleaks), docker (hadolint, Smoke-Test, Trivy) + Freigabe durch eine andere Person | **Ja – Gate für main** |
 | 4. Deployment | Job `deploy` | nur nach Merge auf main und nur bei grünen Checks | **Ja** |
 | Laufend | Renovate (`renovate.json`) | wöchentliche Update-MRs für Pakete, Base-Image, CI-Images | Ja (über MR) |
 
@@ -108,8 +108,8 @@ CLAUDE.md               Verbindliche Regeln für Claude Code
 .claude/                Hooks, Rechte und Verweis auf das QS-Plugin te-cd-qs
 .vscode/                Gemeinsame Editor-Einstellungen, empfohlene Erweiterungen
 .pre-commit-config.yaml Lokale Checks
-.gitlab-ci.yml          CI/CD-Pipeline
-.gitlab/                MR-Template, CODEOWNERS
+.github/workflows/ci.yml CI/CD-Pipeline (GitHub Actions)
+.github/                PR-Vorlage, CODEOWNERS
 renovate.json           Automatische Update-MRs (Renovate)
 scripts/0_…4_….bat      Windows: Projekt anlegen, Python installieren, Umgebung einrichten, hochladen,
                         GitHub-QS einrichten
@@ -122,16 +122,17 @@ APP_INFO.md             App-Steckbrief (Owner, Daten, Risiko) für das App-Regis
 
 ## Hinweise
 
-- **CI-Pipeline:** Die Pipeline liegt noch als `.gitlab-ci.yml` (GitLab) vor und läuft auf GitHub nicht.
-  Bis zur Umstellung auf GitHub Actions gelten lokal pre-commit und `python -m pytest` als Prüfung.
+- **CI-Pipeline:** `.github/workflows/ci.yml` läuft bei jedem Pull Request und nach jedem Merge auf `main`
+  (Jobs lint, test, security, secrets, docker; danach `deploy` als Platzhalter). `scripts/setup-github.sh`
+  trägt diese Jobs als Pflicht-Checks für `main` ein.
 - **Secrets:** gitleaks in pre-commit deckt das Risiko ab; auf GitHub zusätzlich *Secret scanning / Push protection* aktivieren.
-- **GitLab-Runner:** Die Pipeline braucht einen Linux-Runner mit Docker-Executor im *privileged*-Modus
-  (Job `docker` nutzt Docker-in-Docker).
-- **Renovate** braucht einen Renovate-Bot für eure GitLab-Instanz (z. B. *renovate-runner* als
-  geplante Pipeline). Ohne Bot bleiben Updates manuell.
+- **Runner:** Die Pipeline nutzt die von GitHub gehosteten `ubuntu-latest`-Runner (Docker ist dort vorhanden).
+  Bei privaten Repositories zählen die Minuten zum Kontingent des GitHub-Plans.
+- **Renovate:** Die GitHub-App *Renovate* (Mend) für die Organisation `MBeCon` installieren und das
+  Repository freigeben. Ohne App bleiben Updates manuell.
 - **Katalog-Adresse:** `https://gitlab.technosert.com/technosert/cd_te_skills.git`. Zieht der Server
   oder die Gruppe um, die Adresse überall anpassen (auch in `.claude/settings.json`).
-- **Python-Version** steht in `.python-version`, `pyproject.toml`, `Dockerfile` und `.gitlab-ci.yml` –
+- **Python-Version** steht in `.python-version`, `pyproject.toml`, `Dockerfile` und `.github/workflows/ci.yml` –
   nur gemeinsam ändern.
 - **Claude-Code-Hooks** rufen `python` auf. Auf macOS ggf. in `.claude/settings.json`
   auf `python3` ändern.

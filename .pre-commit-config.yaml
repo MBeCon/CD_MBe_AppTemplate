@@ -1,7 +1,7 @@
 # Lokale QS-Ebene: schnelles Feedback vor Commit und Push.
 # Einmalig pro Klon:  pre-commit install
 # Manuell alles prüfen: pre-commit run --all-files
-# Die verbindliche Prüfung passiert zusätzlich in der GitLab-Pipeline.
+# Die verbindliche Prüfung passiert zusätzlich in der GitHub-Actions-Pipeline (.github/workflows/ci.yml).
 
 default_install_hook_types: [pre-commit, pre-push]
 default_stages: [pre-commit]

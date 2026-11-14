@@ -1,7 +1,7 @@
 # CLAUDE.md – Regeln für dieses Repository
 
 Interne te-Anwendung aus dem Citizen Development. Sie wird ausschließlich im Unternehmen
-genutzt, läuft als Docker-Container und wird über die GitLab-Pipeline deployed.
+genutzt, läuft als Docker-Container und wird über die GitHub-Actions-Pipeline deployed.
 Diese Regeln sind verbindlich. Wenn eine Anforderung einer Regel widerspricht: nachfragen,
 nicht stillschweigend abweichen.
 
@@ -78,7 +78,7 @@ macOS/Linux: `bash scripts/setup-dev.sh`, danach `source .venv/bin/activate`.
 ### Was du nie tust
 - QS-Prüfungen umgehen: kein `--no-verify`, kein Deaktivieren von ruff-, bandit- oder Test-Regeln,
   kein `# noqa` / `# nosec` ohne Begründung im Kommentar.
-- `.gitlab-ci.yml`, `.gitlab/`, `renovate.json`, `.pre-commit-config.yaml`, `.claude/`, `pyproject.toml`,
+- `.github/` (Pipeline, PR-Vorlage, CODEOWNERS), `renovate.json`, `.pre-commit-config.yaml`, `.claude/`, `pyproject.toml`,
   `.python-version` oder die Skripte in `scripts/` ändern,
   ohne dass dies ausdrücklich verlangt wurde.
 - Force-Push oder direkter Push auf `main`.

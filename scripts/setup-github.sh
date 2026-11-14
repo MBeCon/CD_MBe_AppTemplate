@@ -7,6 +7,7 @@
 #   - GitHub CLI installiert und angemeldet: gh auth login
 #   - Admin-Recht im Repository
 #   - Branch "main" existiert bereits (erster Push ist erfolgt)
+#   - Die Pipeline (.github/workflows/ci.yml) ist mindestens einmal gelaufen
 #   - Für private Repositories ist der Branch-Schutz nur mit GitHub Pro/Team/Enterprise
 #     verfügbar. Ohne passenden Plan meldet das Skript eine Warnung.
 #
@@ -30,10 +31,13 @@ gh api -X PATCH "repos/${REPO}" \
   -F delete_branch_on_merge=true \
   --silent
 
-echo "==> Geschützter Branch '${BRANCH}': nur per Pull Request, 1 Freigabe, kein Force-Push"
+echo "==> Geschützter Branch '${BRANCH}': nur per Pull Request, 1 Freigabe, grüne Pipeline, kein Force-Push"
 if ! gh api -X PUT "repos/${REPO}/branches/${BRANCH}/protection" --silent --input - <<'JSON'
 {
-  "required_status_checks": null,
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["lint", "test", "security", "secrets", "docker"]
+  },
   "enforce_admins": true,
   "required_pull_request_reviews": {
     "required_approving_review_count": 1,
@@ -50,9 +54,13 @@ then
   warn "Dann gilt das Vier-Augen-Prinzip organisatorisch: nie direkt auf main, Merge nie durch den Autor selbst."
 fi
 
+echo "==> Environment 'production' für den Deploy-Job"
+gh api -X PUT "repos/${REPO}/environments/production" --silent \
+  || warn "Environment konnte nicht angelegt werden."
+
 echo
 echo "Fertig. Bitte noch manuell prüfen:"
 echo "  - Settings > Collaborators and teams: Autoren mit Write, Freigeber mit Maintain/Admin"
-echo "  - Settings > Secrets and variables > Actions: Secrets für das Deployment hinterlegen"
-echo "  - Sobald eine CI-Pipeline (GitHub Actions) existiert: deren Checks als 'required' eintragen"
+echo "  - Settings > Environments > production: Secrets für das Deployment hinterlegen, ggf. Required reviewers"
+echo "  - .github/CODEOWNERS: Platzhalter durch den GitHub-Benutzer des App-Owners ersetzen"
 echo "  - APP_INFO.md ausfüllen"

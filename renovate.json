@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Hält Python-Pakete, Docker-Base-Image und CI-Images aktuell. Jeder Update-Merge-Request läuft durch dieselbe Pipeline und braucht ein Review.",
+  "description": "Hält Python-Pakete, Docker-Base-Image und CI-Images aktuell. Jeder Update-Pull-Request läuft durch dieselbe Pipeline und braucht ein Review.",
   "extends": ["config:recommended"],
   "schedule": ["before 6am on monday"],
   "packageRules": [
@@ -9,7 +9,7 @@
       "groupName": "python"
     },
     {
-      "matchManagers": ["gitlabci"],
+      "matchManagers": ["github-actions"],
       "groupName": "ci-images",
       "schedule": ["before 6am on the first day of the month"]
     }
