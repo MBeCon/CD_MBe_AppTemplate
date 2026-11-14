@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title_suffix %} — Beispielseite{% endblock %}
+
+{# Seitenmuster im MBe-Design: Kacheln → Seitenkopf → Panels → Popups.
+   Vorlage für jede neue Seite – kopieren, umbenennen, Inhalte ersetzen. #}
+
+{% block content %}
+<!-- Kachel-Auswahl (optional), Auswahl wird seitenübergreifend gemerkt -->
+<div class="asset-type-tiles" id="kategorieTiles">
+  <button type="button" class="btn tile-btn" data-kategorie="A">KATEGORIE A</button>
+  <button type="button" class="btn tile-btn" data-kategorie="B">KATEGORIE B</button>
+  <button type="button" class="btn tile-btn" data-kategorie="C">KATEGORIE C</button>
+</div>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">&#128203; Beispielseite</div>
+    <div class="page-subtitle">Musterseite mit Tabelle, Suche, Popup und Aktionen</div>
+  </div>
+  <div>
+    <button type="button" class="btn" data-open-modal="infoModal" title="Hinweise zu dieser Seite anzeigen">Hinweise</button>
+    <button type="button" class="btn btn-primary" id="reloadBtn" title="Liste vom Server neu laden">Aktualisieren</button>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <span>Einträge <span id="listInfo" class="text-muted text-small"></span></span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="text" id="searchInput" class="form-control" style="min-width:180px;" placeholder="Suchen in Ergebnissen...">
+      <button type="button" class="btn btn-primary" id="newBtn">+ Neuer Eintrag</button>
+      <button type="button" class="btn btn-sm" id="refreshBtn" title="Neu laden">&#8635;</button>
+    </div>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Name</th>
+          <th class="td-center">Status</th>
+          <th class="td-right">Wert</th>
+          <th class="td-right">Änderung %</th>
+          <th class="td-center">Aktionen</th>
+        </tr></thead>
+        <tbody id="listBody">
+          <tr><td colspan="5" class="table-loading-cell"><span class="spinner spinner-green"></span> Lade Daten...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Popup: Neuer Eintrag / Bearbeiten -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal" style="min-width:420px;">
+    <div class="modal-header">
+      <span id="editModalTitle">&#43; Neuen Eintrag hinzufügen</span>
+      <button type="button" class="modal-close" data-close-modal="editModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-muted text-small mb-8">Die Beispieldaten werden nur im Browser geändert, nicht gespeichert.</p>
+      <div class="form-group"><label for="fName">Name</label><input type="text" id="fName" class="form-control" maxlength="80"></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;"><label for="fWert">Wert</label><input type="number" id="fWert" class="form-control" step="0.01"></div>
+        <div class="form-group" style="flex:1;">
+          <label for="fStatus">Status</label>
+          <select id="fStatus" class="form-control">
+            <option value="">– bitte wählen –</option>
+            <option value="AKTIV">AKTIV</option>
+            <option value="PRÜFEN">PRÜFEN</option>
+            <option value="INAKTIV">INAKTIV</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-section-title">Optionen</div>
+      <div class="check-group mb-8">
+        <label class="check-label"><input type="checkbox" id="fMerken"> Als Favorit merken</label>
+        <label class="check-label"><input type="checkbox" id="fHinweis"> Hinweis anzeigen</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" data-close-modal="editModal">Abbrechen</button>
+      <button type="button" class="btn btn-primary" id="saveBtn">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Popup: Hinweise -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal" style="min-width:460px;">
+    <div class="modal-header">
+      <span>&#8505; Hinweise</span>
+      <button type="button" class="modal-close" data-close-modal="infoModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <ul class="info-list">
+        <li>Je Bereich genau eine Hauptaktion als violetter Button, ganz rechts.</li>
+        <li>Nebenfunktionen (Filter, Details, Bestätigungen) als Popup.</li>
+        <li>Zahlen rechtsbündig in Courier New, Löschen mit &#128465; und Rückfrage.</li>
+        <li>Keine Inline-Handler – Ereignisse in app/static/js/&lt;seite&gt;.js verdrahten.</li>
+      </ul>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" data-close-modal="infoModal">Schließen</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/beispiel.js') }}"></script>
+{% endblock %}

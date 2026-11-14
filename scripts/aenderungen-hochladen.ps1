@@ -1,6 +1,6 @@
-﻿# Lädt Änderungen sicher auf GitLab hoch (aufgerufen von 3_aenderungen_hochladen.bat):
+﻿# Lädt Änderungen sicher auf GitHub hoch (aufgerufen von 3_aenderungen_hochladen.bat):
 # eigener Branch statt main, Dateiliste bestätigen, Commit (mit pre-commit-Prüfungen),
-# Push (mit Tests), danach optional den Merge Request im Browser öffnen.
+# Push (mit Tests), danach optional den Pull Request im Browser öffnen.
 
 $ErrorActionPreference = "Continue"  # Fehler werden über $LASTEXITCODE geprüft
 Set-Location (Split-Path -Parent $PSScriptRoot)
@@ -56,18 +56,19 @@ if ($aenderungen) {
 
 # --- Push ------------------------------------------------------------------------
 Write-Host ""
-Write-Host "Hochladen nach GitLab (vorher laufen alle Tests) ..." -ForegroundColor Magenta
+Write-Host "Hochladen nach GitHub (vorher laufen alle Tests) ..." -ForegroundColor Magenta
 git push -u origin $branch
 if ($LASTEXITCODE -ne 0) {
-    Abbruch "Push fehlgeschlagen. Tests rot? Meldung oben lesen.`nAnmeldung: glab auth login --hostname gitlab.technosert.com"
+    Abbruch "Push fehlgeschlagen. Tests rot? Meldung oben lesen.`nAnmeldung: gh auth login"
 }
 
-# --- d) Merge Request ------------------------------------------------------------
+# --- d) Pull Request -------------------------------------------------------------
 $remote = (git remote get-url origin).Trim()
 if ($remote -match "^git@([^:]+):(.+?)(\.git)?$") { $basis = "https://$($Matches[1])/$($Matches[2])" }
 else { $basis = $remote -replace "\.git$", "" -replace "//[^@/]+@", "//" }
-$url = "$basis/-/merge_requests/new?merge_request%5Bsource_branch%5D=$([uri]::EscapeDataString($branch))&merge_request%5Btarget_branch%5D=main"
+# GitHub: Vergleichsseite main...<branch> mit geöffnetem Pull-Request-Formular
+$url = "$basis/compare/main...$($branch)?expand=1"
 
 Write-Host ""
 Write-Host "Hochgeladen auf Branch $branch." -ForegroundColor Green
-if (Frage "Merge Request jetzt im Browser öffnen?") { Start-Process $url } else { Write-Host "Später: $url" }
+if (Frage "Pull Request jetzt im Browser öffnen?") { Start-Process $url } else { Write-Host "Später: $url" }

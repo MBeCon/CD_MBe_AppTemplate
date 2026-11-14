@@ -1,5 +1,5 @@
 @echo off
-rem Branch anlegen, Commit, Push, Merge Request oeffnen - nie direkt auf main.
+rem Branch anlegen, Commit, Push, Pull Request oeffnen - nie direkt auf main.
 rem Die eigentliche Arbeit macht scripts\aenderungen-hochladen.ps1.
 setlocal
 cd /d "%~dp0.."

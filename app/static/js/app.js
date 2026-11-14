@@ -1,146 +1,110 @@
-/* app.js – generische Oberflächen-Logik des technosert-App-Designs
-   (übernommen aus teProductionPlanning/base.html, Skill te-appdesign).
-   Liegt bewusst als Datei vor: Die Content-Security-Policy der App erlaubt
-   kein Inline-JavaScript (kein <script>…</script>, kein onclick="…"). */
+/* app.js – gemeinsame Oberflächen-Logik des MBe-Designs (Referenz: MBeTradingHub base.html,
+   Skill mbe-design). Liegt bewusst als Datei vor: Die Content-Security-Policy der App erlaubt
+   kein Inline-JavaScript (kein <script>…</script>, kein onclick="…").
 
-// Menüspalte ein-/ausklappen (Klick auf .sidebar-toggle), Zustand im Browser merken
+   Statt onclick werden data-Attribute verwendet und hier zentral ausgewertet:
+     data-action="toggle-sidebar"   Menüleiste ein-/ausklappen
+     data-open-modal="xyzModal"     Popup öffnen
+     data-close-modal="xyzModal"    Popup schließen (auch: Klick auf den dunklen Hintergrund)
+     data-hide-on-error             Bild ausblenden, wenn es nicht geladen werden kann
+   Seitenspezifische Logik gehört in eine eigene Datei app/static/js/<seite>.js,
+   eingebunden über {% block scripts %}. Die Helfer unten nicht pro Seite neu definieren. */
+
+'use strict';
+
+// ---- Gemeinsame Helfer (auf allen Seiten verfügbar) -------------------------
+function escHtml(s) {
+    return (s === null || s === undefined) ? ''
+        : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function fmtNum(v, dec) {
+    return (v === null || v === undefined || v === '') ? '–'
+        : Number(v).toLocaleString('de-AT', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function fmtChangeClass(v) { return v > 0 ? 'change-pos' : (v < 0 ? 'change-neg' : 'change-neu'); }
+
+function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
+function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
+
+// Button während einer Aktion sperren + Spinner zeigen, danach Originaltext zurück
+function withBusy(btn, busyText, promiseFn) {
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner spinner-green"></span> ' + escHtml(busyText || 'Bitte warten...');
+    return Promise.resolve().then(promiseFn).finally(() => { btn.disabled = false; btn.innerHTML = orig; });
+}
+function loadingRow(colspan, text) {
+    return `<tr><td colspan="${colspan}" class="table-loading-cell"><span class="spinner spinner-green"></span> ${escHtml(text || 'Lade Daten...')}</td></tr>`;
+}
+function emptyRow(colspan, text) {
+    return `<tr><td colspan="${colspan}" class="td-center text-muted" style="padding:16px;">${escHtml(text)}</td></tr>`;
+}
+
+// Seitenübergreifend gemerkte Auswahl (z.B. Kachel, gewählte Liste, Filter)
+function getSaved(key, valid, fallback) {
+    try {
+        const v = localStorage.getItem(key);
+        return (v && (!valid || valid.includes(v))) ? v : fallback;
+    } catch (e) { return fallback; }
+}
+function save(key, v) { try { localStorage.setItem(key, v); } catch (e) { /* ohne Speicher */ } }
+
+// ---- Menüleiste --------------------------------------------------------------
+const SIDEBAR_KEY = 'mbeSidebarCollapsed';
+function setSidebarCollapsed(collapsed) {
+    document.getElementById('appLayout').classList.toggle('sidebar-collapsed', collapsed);
+    document.getElementById('appSidebar').classList.toggle('sidebar-collapsed', collapsed);
+    save(SIDEBAR_KEY, collapsed ? '1' : '0');
+}
 function toggleSidebar() {
-    const sb = document.getElementById('appSidebar');
-    const icon = document.getElementById('sidebarToggleIcon');
-    if (!sb || !icon) return;
-    sb.classList.toggle('collapsed');
-    icon.textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
-    document.querySelectorAll('.sidebar-text').forEach(el => {
-        el.style.display = sb.classList.contains('collapsed') ? 'none' : '';
-    });
-    try { localStorage.setItem('sidebarCollapsed', sb.classList.contains('collapsed')); } catch (e) { /* ohne Speicher */ }
+    setSidebarCollapsed(!document.getElementById('appLayout').classList.contains('sidebar-collapsed'));
 }
-window.addEventListener('DOMContentLoaded', () => {
-    const toggle = document.querySelector('.sidebar-toggle');
-    if (toggle) toggle.addEventListener('click', toggleSidebar);
-    let collapsed = false;
-    try { collapsed = localStorage.getItem('sidebarCollapsed') === 'true'; } catch (e) { /* ohne Speicher */ }
-    if (collapsed) toggleSidebar();
 
-    // Flash-Meldungen: Schließen-Button und automatisch nach 6 Sekunden ausblenden
-    document.querySelectorAll('.flash-close').forEach(btn => {
-        btn.addEventListener('click', () => btn.parentElement.remove());
-    });
-    setTimeout(() => document.querySelectorAll('.flash-msg').forEach(el => el.remove()), 6000);
+// ---- Fußzeile: Server-Status und Uhr ---------------------------------------
+function updateServerStatus() {
+    const dot = document.getElementById('serverStatusDot');
+    const text = document.getElementById('serverStatusText');
+    if (!dot || !text) return;
+    fetch('/health', { cache: 'no-store' })
+        .then(r => r.json())
+        .then(d => {
+            const ok = d && d.status === 'ok';
+            dot.className = 'status-dot ' + (ok ? 'green' : 'orange');
+            text.textContent = ok ? 'Server: verbunden' : 'Server: eingeschränkt';
+        })
+        .catch(() => { dot.className = 'status-dot red'; text.textContent = 'Server: keine Verbindung'; });
+}
+function updateClock() {
+    const el = document.getElementById('footerTime');
+    if (el) el.textContent = new Date().toLocaleString('de-AT', { hour12: false });
+}
+
+// ---- Zentrale Ereignisbehandlung (ersetzt onclick=) ------------------------
+document.addEventListener('click', (e) => {
+    const t = e.target;
+    const actionEl = t.closest('[data-action="toggle-sidebar"]');
+    if (actionEl) { toggleSidebar(); return; }
+    const openEl = t.closest('[data-open-modal]');
+    if (openEl) { openModal(openEl.dataset.openModal); return; }
+    const closeEl = t.closest('[data-close-modal]');
+    if (closeEl) { closeModal(closeEl.dataset.closeModal); return; }
+    // Klick auf den abgedunkelten Hintergrund schließt das Popup
+    if (t.classList && t.classList.contains('modal-overlay')) t.classList.remove('open');
 });
-
-// Auto-wachsende Informationsfelder (.auto-textarea, siehe style.css):
-// Höhe wird an den Inhalt angepasst (bis max-height ~3 Zeilen, siehe CSS),
-// darüber übernimmt overflow-y:auto das Scrollen innerhalb des Feldes.
-function autoResizeTextarea(el) {
-    el.style.height = 'auto';
-    const maxH = parseInt(getComputedStyle(el).maxHeight, 10) || 999;
-    el.style.height = Math.min(el.scrollHeight, maxH) + 'px';
-}
-document.addEventListener('input', (e) => {
-    if (e.target.classList && e.target.classList.contains('auto-textarea')) {
-        autoResizeTextarea(e.target);
-    }
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+});
+// Bilder mit data-hide-on-error ausblenden, wenn sie fehlen (ersetzt onerror=)
+document.addEventListener('error', (e) => {
+    const el = e.target;
+    if (el && el.tagName === 'IMG' && el.hasAttribute('data-hide-on-error')) el.style.display = 'none';
 }, true);
+
 window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.auto-textarea').forEach(autoResizeTextarea);
+    if (getSaved(SIDEBAR_KEY, ['0', '1'], '0') === '1') setSidebarCollapsed(true);
+    updateServerStatus();
+    updateClock();
+    setInterval(updateServerStatus, 30000);
+    setInterval(updateClock, 1000);
 });
-
-// PopUps verschieben & Größe ändern (ganze Anwendung, siehe style.css
-// .modal-header/.modal-resize-handle): jedes PopUp (.modal-box) kann per
-// Klick+Halten auf die Kopfzeile verschoben und per Ziehen an der Ecke
-// unten rechts in der Größe verändert werden. Generisch für ALLE PopUps
-// (aktuelle und künftige) - es werden nur die gemeinsamen CSS-Klassen
-// vorausgesetzt, keine Änderung an den einzelnen PopUp-Templates nötig.
-function initModalDragAndResize() {
-    // Größenänderungs-Griff einmalig in jede .modal-box einfügen.
-    document.querySelectorAll('.modal-box').forEach(box => {
-        if (!box.querySelector(':scope > .modal-resize-handle')) {
-            const handle = document.createElement('div');
-            handle.className = 'modal-resize-handle';
-            handle.title = 'Größe ändern';
-            box.appendChild(handle);
-        }
-    });
-
-    // Vor dem ersten Verschieben/Vergrößern sitzt eine .modal-box noch mittig
-    // im flex-zentrierten .modal-backdrop (unverändertes Standardverhalten).
-    // Erst beim ersten Ziehen wird sie auf feste Bildschirmkoordinaten
-    // ("position:fixed") umgestellt, exakt an ihrer aktuellen Position -
-    // dadurch gibt es keinen sichtbaren Sprung.
-    function toFixedPosition(box) {
-        if (box.dataset.ekeyFixed === '1') return;
-        const rect = box.getBoundingClientRect();
-        box.style.position = 'fixed';
-        box.style.left = rect.left + 'px';
-        box.style.top = rect.top + 'px';
-        box.style.margin = '0';
-        box.style.maxWidth = 'none';
-        box.style.maxHeight = 'none';
-        box.style.width = rect.width + 'px';
-        box.style.height = rect.height + 'px';
-        box.dataset.ekeyFixed = '1';
-    }
-
-    let dragBox = null, dragOffsetX = 0, dragOffsetY = 0;
-    let resizeBox = null, resizeStartW = 0, resizeStartH = 0, resizeStartX = 0, resizeStartY = 0;
-    const MIN_VISIBLE = 40, MIN_W = 280, MIN_H = 120;
-
-    document.addEventListener('mousedown', (e) => {
-        const header = e.target.closest('.modal-header');
-        if (header && !e.target.closest('button, a, input, select, textarea')) {
-            const box = header.closest('.modal-box');
-            if (!box) return;
-            toFixedPosition(box);
-            const rect = box.getBoundingClientRect();
-            dragBox = box;
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-            box.classList.add('ekey-dragging');
-            document.body.style.userSelect = 'none';
-            e.preventDefault();
-            return;
-        }
-        const handle = e.target.closest('.modal-resize-handle');
-        if (handle) {
-            const box = handle.closest('.modal-box');
-            if (!box) return;
-            toFixedPosition(box);
-            const rect = box.getBoundingClientRect();
-            resizeBox = box;
-            resizeStartW = rect.width;
-            resizeStartH = rect.height;
-            resizeStartX = e.clientX;
-            resizeStartY = e.clientY;
-            box.classList.add('ekey-resizing');
-            document.body.style.userSelect = 'none';
-            e.preventDefault();
-        }
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (dragBox) {
-            const rect = dragBox.getBoundingClientRect();
-            let left = e.clientX - dragOffsetX;
-            let top = e.clientY - dragOffsetY;
-            // Im sichtbaren Bereich halten, damit die Kopfzeile (zum
-            // Zurückholen) immer erreichbar bleibt.
-            left = Math.max(MIN_VISIBLE - rect.width, Math.min(left, window.innerWidth - MIN_VISIBLE));
-            top = Math.max(0, Math.min(top, window.innerHeight - MIN_VISIBLE));
-            dragBox.style.left = left + 'px';
-            dragBox.style.top = top + 'px';
-        } else if (resizeBox) {
-            const newW = Math.max(MIN_W, resizeStartW + (e.clientX - resizeStartX));
-            const newH = Math.max(MIN_H, resizeStartH + (e.clientY - resizeStartY));
-            resizeBox.style.width = newW + 'px';
-            resizeBox.style.height = newH + 'px';
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (dragBox) { dragBox.classList.remove('ekey-dragging'); dragBox = null; }
-        if (resizeBox) { resizeBox.classList.remove('ekey-resizing'); resizeBox = null; }
-        document.body.style.userSelect = '';
-    });
-}
-window.addEventListener('DOMContentLoaded', initModalDragAndResize);

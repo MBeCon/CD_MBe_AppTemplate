@@ -1,16 +1,61 @@
 {% extends "base.html" %}
-{% block title %}Start – {{ self.app_title() }}{% endblock %}
+{% block title_suffix %} — Startseite{% endblock %}
+
 {% block content %}
-  <div class="page-header">
-    <div>
-      <div class="page-title">Startseite</div>
-      <div class="page-subtitle">Umgebung: {{ app_env }}</div>
+<div class="page-header">
+  <div>
+    <div class="page-title">Willkommen bei {{ self.app_title() }}</div>
+    <div class="page-subtitle">Erstellt aus der MBe-Vorlage CD_MBe_AppTemplate · Umgebung: {{ app_env }}</div>
+  </div>
+  <div>
+    <a class="btn btn-primary" href="{{ url_for('main.beispiel') }}">Zur Beispielseite</a>
+  </div>
+</div>
+
+<div class="home-content">
+  <!-- Linke Spalte: im MBe-Design das Titelbild (21:9). Bild unter app/static/images/titelbild.png
+       ablegen und dieses Panel durch
+       <div class="home-image"><img src="{{ '{{' }} url_for('static', filename='images/titelbild.png') {{ '}}' }}" alt="Titelbild" data-hide-on-error></div>
+       ersetzen. -->
+  <div class="panel" style="margin:0;">
+    <div class="panel-header"><span>&#128640; Erste Schritte</span></div>
+    <div class="panel-body">
+      <div class="info-box">
+        <div class="info-box-title">So wird aus der Vorlage eine eigene Anwendung</div>
+        <ul class="info-list">
+          <li>App-Name und Untertitel in <span class="bold">app/templates/base.html</span> anpassen (<span class="bold">app_title</span>, <span class="bold">app_subtitle</span>).</li>
+          <li>Menügruppen in der Sidebar durch eigene Bereiche ersetzen.</li>
+          <li>Neue Seiten nach dem Muster der <span class="bold">Beispielseite</span> anlegen.</li>
+          <li>Seiten-JavaScript als eigene Datei unter <span class="bold">app/static/js/</span> ablegen.</li>
+          <li><span class="bold">APP_INFO.md</span> und <span class="bold">README.md</span> ausfüllen.</li>
+        </ul>
+      </div>
     </div>
   </div>
-  <div class="content-section">
-    <div class="content-section-header">Willkommen</div>
-    <div class="content-section-body">
-      Diese Anwendung wurde aus der Vorlage CD_te_app_template erstellt.
+
+  <!-- Rechte Spalte: Übersichts-Panel -->
+  <div class="panel" style="margin:0;">
+    <div class="panel-header"><span>&#128202; Übersicht</span><span class="text-muted text-small">Systeminformationen</span></div>
+    <div class="panel-body">
+      <div class="kv-grid">
+        <div class="kv-item"><span class="kv-label">Anwendung</span><span class="kv-value">{{ self.app_title() }}</span></div>
+        <div class="kv-item"><span class="kv-label">Umgebung</span><span class="kv-value">{{ app_env }}</span></div>
+        <div class="kv-item"><span class="kv-label">Design</span><span class="kv-value">MBe-Design</span></div>
+        <div class="kv-item"><span class="kv-label">Health-Check</span><span class="kv-value">/health</span></div>
+      </div>
     </div>
   </div>
+</div>
+
+<!-- KPI-Zeile -->
+<div class="panel mt-16">
+  <div class="panel-body">
+    <div class="summary-row">
+      <div class="summary-item-inline"><span class="summary-lbl">Kennzahl A</span><span class="summary-val">1.234,50</span></div>
+      <div class="summary-item-inline"><span class="summary-lbl">Kennzahl B</span><span class="summary-val change-pos">+12,40 %</span></div>
+      <div class="summary-item-inline"><span class="summary-lbl">Kennzahl C</span><span class="summary-val change-neg">-3,10 %</span></div>
+      <div class="summary-item-inline"><span class="summary-lbl">Kennzahl D</span><span class="summary-val">–</span></div>
+    </div>
+  </div>
+</div>
 {% endblock %}
